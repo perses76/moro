@@ -3,6 +3,7 @@
 const e = React.createElement;
 
 const mockSurvey = {
+    id: 1,
     title: "This is my mock survey",
     questions: [
         {
@@ -13,17 +14,45 @@ const mockSurvey = {
                 {id: 1, title: "Answer1"},
                 {id: 2, title: "Answer2"},
                 {id: 3, title: "Answer3"},
-            ]
+            ],
+            selected: null,
+        },
+        {
+            id: 2,
+            title: "Multi choices",
+            type: "multi",
+            answers: [
+                {id: 1, title: "Answer1"},
+                {id: 2, title: "Answer2"},
+                {id: 3, title: "Answer3"},
+            ],
+            selected: []
         }
     ]
 };
 
 
-function QSingle(props) {
+function AnswerMulti(props) {
+    const onChange = function (e) {
+        const val = e.target.value;
+        // props.question.selected = e.target.value;
+        if (e.target.checked) {
+            if (!props.question.selected.includes(val)) props.question.selected.push(val);
+        }
+        else {
+            props.question.selected = props.question.selected.filter(answerId => answerId != val);
+        }
+        console.log(e.target.value, e.target.checked);
+    }
+    return (
+        <div>
+            <input type="checkbox" name={props.question.id} value={props.answer.id} onChange={ onChange }/> { props.answer.title }
+        </div>
+    )
+
 }
 
-
-function Answer(props) {
+function AnswerSingle(props) {
     const onChange = function (e) {
         props.question.selected = e.target.value;
     }
@@ -35,10 +64,17 @@ function Answer(props) {
 
 }
 
+function renderAnswer(answer, question) {
+        if (question.type == "single") {
+            return (<AnswerSingle key= {answer.id} answer={ answer} question={question}/>)
+        }
+        if (question.type == "multi") {
+            return (<AnswerMulti key= {answer.id} answer={ answer} question={question}/>)
+        }
+}
+
 function Question(props) {
-    const answerItems = props.question.answers.map(answer => {
-        return (<Answer key= {answer.id} answer={ answer} question={props.question}/>)
-    })
+    const answerItems = props.question.answers.map(answer => renderAnswer(answer, props.question))
     return (
         <div>
         <h3>{ props.question.title}</h3>
