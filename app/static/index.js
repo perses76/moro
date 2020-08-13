@@ -1,7 +1,5 @@
 'use strict';
 
-const e = React.createElement;
-
 const mockSurvey = {
     id: 1,
     title: "This is my mock survey",
@@ -10,10 +8,10 @@ const mockSurvey = {
             id: 1,
             title: "Single choice",
             type: "single",
-            answers: [
-                {id: 1, title: "Answer1"},
-                {id: 2, title: "Answer2"},
-                {id: 3, title: "Answer3"},
+            options: [
+                {id: 1, title: "Answer1", checked: true, with_text: true},
+                {id: 2, title: "Answer2", checked: false},
+                {id: 3, title: "Answer3", checked: true},
             ],
             selected: null,
         },
@@ -21,47 +19,30 @@ const mockSurvey = {
             id: 2,
             title: "Multi choices",
             type: "multi",
-            answers: [
-                {id: 1, title: "Answer1"},
-                {id: 2, title: "Answer2"},
-                {id: 3, title: "Answer3"},
+            options: [
+                {id: 4, title: "Answer1", checked: true},
+                {id: 5, title: "Answer2", checked: false},
+                {id: 6, title: "Answer3", with_text: true},
             ],
             selected: []
         }
     ]
 };
 
-
-function AnswerMulti(props) {
-    const onChange = function (e) {
-        const val = e.target.value;
-        // props.question.selected = e.target.value;
-        if (e.target.checked) {
-            if (!props.question.selected.includes(val)) props.question.selected.push(val);
-        }
-        else {
-            props.question.selected = props.question.selected.filter(answerId => answerId != val);
-        }
-        console.log(e.target.value, e.target.checked);
-    }
-    return (
-        <div>
-            <input type="checkbox" name={props.question.id} value={props.answer.id} onChange={ onChange }/> { props.answer.title }
-        </div>
-    )
-
+const ResultFull = {
+    survey_id: 1,
+    questions: [
+        {id: 1, options: [{id: 1, free_text: "Hello"}]},
+        {id: 2, options: [{id: 1}, {id: 2}]}
+    ]
 }
 
-function AnswerSingle(props) {
-    const onChange = function (e) {
-        props.question.selected = e.target.value;
-    }
-    return (
-        <div>
-            <input type="radio" name={props.question.id} value={props.answer.id} onChange={ onChange }/> { props.answer.title }
-        </div>
-    )
-
+const Result = {
+    survey_id: 1,
+    questions: [
+        {id: 1, options: []},
+        {id: 2, options: []}
+    ]
 }
 
 function renderAnswer(answer, question) {
@@ -73,19 +54,110 @@ function renderAnswer(answer, question) {
         }
 }
 
-function Question(props) {
-    const answerItems = props.question.answers.map(answer => renderAnswer(answer, props.question))
+
+function Option(props) {
+    const onFreeTextUpdated = function (e) {
+        const freeText = e.target.value;
+        const new_option = {
+            ...props.option,
+            checked: true
+        }
+        if (props.option.with_text) {
+            new_option.free_text = freeText
+        }
+        props.updateOption(new_option);
+    }
+    return (
+        <span>
+        <span>{ props.option.title }</span>
+        { props.option.with_text &&
+            <textarea onChange={ onFreeTextUpdated }/>
+        }
+        </span>
+    );
+}
+
+function QuestionMulti(props) {
+    const onChange = function (option) {
+        const new_option = {...option, checked: !option.checked}
+        console.log("new_option=", new_option);
+        updateOption(new_option);
+    }
+    const updateOption = function (new_option) {
+        console.log("question before=", props.question);
+        const new_question = {
+            ...props.question, 
+            options: props.question.options.map((option) => option.id == new_option.id ? new_option : {...option})
+        }
+        console.log("question after=", new_question);
+        props.updateQuestion(new_question);
+    }
+    const optionItems = props.question.options.map(option => {
+        return (<div key={option.id}>
+            <input type="checkbox" defaultChecked={option.checked} onClick={ (e) => {onChange(option); } } value={option.id} />
+            <Option option={ option } updateOption={ updateOption } />
+        </div>)
+    });
     return (
         <div>
-        <h3>{ props.question.title}</h3>
-        { answerItems }
+        { console.log("render QuesionMulti") }
+        { console.log(optionItems) }
+        { props.question.options.map(option => console.log("option=", option)) }
+            <h3>{ props.question.title}</h3>
+            { optionItems }
         </div>
-    )
+    );
+}
+
+function QuestionSingle(props) {
+    const onChange = function (selected_option) {
+        const new_option = {...selected_option, checked: true}
+        updateOption(new_option);
+    }
+    const updateOption = function (new_option) {
+        console.log("question before=", props.question);
+        const new_question = {
+            ...props.question, 
+            options: props.question.options.map((option) => option.id == new_option.id ? new_option : {...option, checked: false})
+        }
+        console.log("question after=", new_question);
+        props.updateQuestion(new_question);
+    }
+    const optionItems = props.question.options.map(option => {
+        return (<div key={option.id}>
+            <input type="radio" name={ "qs_" + props.question.id} value={option.id} checked={option.checked} onChange={()=> onChange(option) }/>
+            <Option option={ option } updateOption={ updateOption } />
+        </div>)
+    });
+    return (
+        <div>
+            <h3>{ props.question.title}</h3>
+            { optionItems }
+        </div>
+    );
+}
+
+function Question(props) {
+    switch (props.question.type) {
+        case "single":
+            return <QuestionSingle question={ props.question } updateQuestion ={ props.updateQuestion }/>;
+        case "multi":
+            return <QuestionMulti question={ props.question } updateQuestion={ props.updateQuestion }/>;
+        default:
+            throw "Can not find Question type for: '" + props.question.type + "'";
+    }
 }
 
 function Survey(props) {
     const survey = props.survey;
-    const questionItems = survey.questions.map((q) => <Question key={ q.id } question={q} />);
+    const updateQuestion = function(question) {
+        console.log("Update question: ", question);
+        const new_survey = {
+            ...survey,
+            questions: survey.questions.map((q) => q.id ==question.id ? question : q)
+        }
+        props.setSurvey(new_survey);
+    }
     const saveResult = function () {
         alert("Save");
         console.log(survey);
@@ -93,17 +165,18 @@ function Survey(props) {
     return (
         <div>
         <h2>{ survey.title }</h2>
-        { questionItems }
+        {
+            survey.questions.map((q) => <Question key={ q.id } question={q} updateQuestion= { updateQuestion } />)
+        }
         <button onClick={ saveResult }>Save</button>
         </div>
     )
-
 }
-
 
 function App() {
     console.log("Start app");
     const [survey, setSurvey] = React.useState(null);
+    const [result, setResult] = React.useState(null);
     let timer1;
 
 
@@ -116,7 +189,6 @@ function App() {
         console.log("use effect");
         timer1 = setTimeout(function () {
             console.log("after 1 sec");
-            console.log(timer1);
             clearTimeout(timer1);
             setSurvey(mockSurvey);
         }, 1000);
@@ -128,29 +200,10 @@ function App() {
         )
     } else {
         return (
-            <Survey survey={survey}/>
+            <Survey survey={survey} result = {result} setSurvey={ setSurvey }/>
         )
     }
     ;
-}
-
-class LikeButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { liked: false };
-  }
-
-  render() {
-    if (this.state.liked) {
-      return 'You liked this.';
-    }
-
-    return (
-        <button onClick={() => this.setState({ liked: true })}>
-            Like
-        </button>
-    );
-  }
 }
 
 const elApp = document.getElementById("app");
