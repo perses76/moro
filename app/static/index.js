@@ -12,8 +12,7 @@ const mockSurvey = {
                 {id: 1, title: "Answer1", checked: true, with_text: true},
                 {id: 2, title: "Answer2", checked: false},
                 {id: 3, title: "Answer3", checked: true},
-            ],
-            selected: null,
+            ]
         },
         {
             id: 2,
@@ -23,8 +22,15 @@ const mockSurvey = {
                 {id: 4, title: "Answer1", checked: true},
                 {id: 5, title: "Answer2", checked: false},
                 {id: 6, title: "Answer3", with_text: true},
-            ],
-            selected: []
+            ]
+        },
+        {
+            id: 3,
+            title: "Free text",
+            type: "freetext",
+            options: [
+                {id: 7, title: "Answer1", checked: true},
+            ]
         }
     ]
 };
@@ -45,15 +51,9 @@ const Result = {
     ]
 }
 
-function renderAnswer(answer, question) {
-        if (question.type == "single") {
-            return (<AnswerSingle key= {answer.id} answer={ answer} question={question}/>)
-        }
-        if (question.type == "multi") {
-            return (<AnswerMulti key= {answer.id} answer={ answer} question={question}/>)
-        }
+function replaceEntity(arr, new_item) {
+    return arr.map(item => item.id === new_item.id ? new_item : item)
 }
-
 
 function Option(props) {
     const onFreeTextUpdated = function (e) {
@@ -79,60 +79,73 @@ function Option(props) {
 
 function QuestionMulti(props) {
     const onChange = function (option) {
-        const new_option = {...option, checked: !option.checked}
-        console.log("new_option=", new_option);
-        updateOption(new_option);
+        updateOption({...option, checked: !option.checked});
     }
     const updateOption = function (new_option) {
-        console.log("question before=", props.question);
-        const new_question = {
+        props.updateQuestion({
             ...props.question, 
-            options: props.question.options.map((option) => option.id == new_option.id ? new_option : {...option})
-        }
-        console.log("question after=", new_question);
-        props.updateQuestion(new_question);
+            options: replaceEntity(props.question.options, new_option)
+        });
     }
-    const optionItems = props.question.options.map(option => {
-        return (<div key={option.id}>
-            <input type="checkbox" defaultChecked={option.checked} onClick={ (e) => {onChange(option); } } value={option.id} />
-            <Option option={ option } updateOption={ updateOption } />
-        </div>)
-    });
     return (
         <div>
-        { console.log("render QuesionMulti") }
-        { console.log(optionItems) }
-        { props.question.options.map(option => console.log("option=", option)) }
             <h3>{ props.question.title}</h3>
-            { optionItems }
+            { props.question.options.map(option => {
+                return (<div key={option.id}>
+                    <input type="checkbox" defaultChecked={option.checked} onClick={ (e) => {onChange(option); } } value={option.id} />
+                    <Option option={ option } updateOption={ updateOption } />
+                </div>)
+              })
+            }
         </div>
     );
 }
 
 function QuestionSingle(props) {
-    const onChange = function (selected_option) {
-        const new_option = {...selected_option, checked: true}
-        updateOption(new_option);
+    const onChange = function (option) {
+        updateOption({...option, checked: true});
     }
     const updateOption = function (new_option) {
-        console.log("question before=", props.question);
-        const new_question = {
+        props.updateQuestion({
             ...props.question, 
-            options: props.question.options.map((option) => option.id == new_option.id ? new_option : {...option, checked: false})
-        }
-        console.log("question after=", new_question);
-        props.updateQuestion(new_question);
+            options: replaceEntity(
+                props.question.options.map(option => {return {...option, checked: false}}),
+                new_option
+            )
+        });
     }
-    const optionItems = props.question.options.map(option => {
-        return (<div key={option.id}>
-            <input type="radio" name={ "qs_" + props.question.id} value={option.id} checked={option.checked} onChange={()=> onChange(option) }/>
-            <Option option={ option } updateOption={ updateOption } />
-        </div>)
-    });
     return (
         <div>
             <h3>{ props.question.title}</h3>
-            { optionItems }
+            {
+                props.question.options.map(option => {
+                    return (<div key={option.id}>
+                        <input type="radio" name={ "qs_" + props.question.id} value={option.id} checked={option.checked} onChange={(e)=> {onChange(option)} }/>
+                        <Option option={ option } updateOption={ updateOption } />
+                    </div>)
+                })
+            }
+        </div>
+    );
+}
+
+function QuestionFreetext(props) {
+    const option = props.question.options[0];
+    const onChange = function (e) {
+        const freeText = e.target.value;
+        props.updateQuestion({
+            ...props.question, 
+            options: replaceEntity(
+                props.question.options,
+                {...option, checked: (freeText !== ""), free_text: freeText}
+            )
+        });
+    }
+    return (
+        <div>
+            <h3>{ props.question.title}</h3>
+            <div> { option.title }</div>
+            <textarea onChange={ onChange }>{ option.free_text }</textarea>
         </div>
     );
 }
@@ -143,6 +156,8 @@ function Question(props) {
             return <QuestionSingle question={ props.question } updateQuestion ={ props.updateQuestion }/>;
         case "multi":
             return <QuestionMulti question={ props.question } updateQuestion={ props.updateQuestion }/>;
+        case "freetext":
+            return <QuestionFreetext question={ props.question } updateQuestion={ props.updateQuestion }/>;
         default:
             throw "Can not find Question type for: '" + props.question.type + "'";
     }
