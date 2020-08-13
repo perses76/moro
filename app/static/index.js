@@ -3,6 +3,7 @@
 const mockSurvey = {
     id: 1,
     title: "This is my mock survey",
+    user_rate: 3,
     questions: [
         {
             id: 1,
@@ -53,6 +54,27 @@ const Result = {
 
 function replaceEntity(arr, new_item) {
     return arr.map(item => item.id === new_item.id ? new_item : item)
+}
+
+
+function UserRate(props) {
+    const stars = (new Array(5)).fill(0).map((it, idx) => idx < props.userRate);
+
+    return (
+        <div>
+        <h2>User rate</h2>
+        { console.log(stars) }
+        {
+            stars.map((item, idx) => {
+                return (
+                    <div key={idx} onClick={ (e) => props.updateUserRate(idx+1) }>
+                        { new String(item) }
+                    </div>
+                )
+            })
+        }
+        </div>
+    )
 }
 
 function Option(props) {
@@ -167,11 +189,17 @@ function Survey(props) {
     const survey = props.survey;
     const updateQuestion = function(question) {
         console.log("Update question: ", question);
-        const new_survey = {
+        props.setSurvey({
             ...survey,
-            questions: survey.questions.map((q) => q.id ==question.id ? question : q)
-        }
-        props.setSurvey(new_survey);
+            questions: replaceEntity(survey.questions, question)
+        });
+    }
+    const updateUserRate = function(new_rate) {
+        console.log("Update user rate: ", new_rate);
+        props.setSurvey({
+            ...survey,
+            user_rate: new_rate
+        });
     }
     const saveResult = function () {
         alert("Save");
@@ -183,6 +211,8 @@ function Survey(props) {
         {
             survey.questions.map((q) => <Question key={ q.id } question={q} updateQuestion= { updateQuestion } />)
         }
+
+        <UserRate userRate={ survey.user_rate} updateUserRate={ updateUserRate }/>
         <button onClick={ saveResult }>Save</button>
         </div>
     )
