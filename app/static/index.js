@@ -86,7 +86,22 @@ function Survey(props) {
     }
     const saveResult = function () {
         alert("Save");
-        console.log(survey);
+        const result =  {
+            id: survey.id,
+            user_rate: survey.user_rate,
+            questions: survey.questions.map(q => {
+                return {
+                    id: q.id,
+                    answers: q.options.filter(opt => opt.checked).map(opt => {
+                        return {
+                            id: opt.id,
+                            free_text: opt.free_text
+                        }
+                    })
+                }
+            })
+        }
+        console.log(result);
     }
     return (
         <div>
