@@ -41,16 +41,55 @@ ReactDOM.render(React.createElement(App), elApp);
 
 function App() {
     const [survey, setSurvey] = React.useState(null);
-    const [result, setResult] = React.useState(null);
     const [errorMessage, setError] = React.useState(null);
+    const [successMessage, setSuccess] = React.useState(null);
 
     var searchParams = new URLSearchParams(location.search);
-    const raid_id = searchParams.get("raid_id")
+    const ride_id = searchParams.get("ride_id")
     const survey_id = searchParams.get("survey_id")
 
+    const saveSurvey = function () {
+        const result =  {
+            id: survey.id,
+            ride_id: ride_id,
+            user_rate: survey.user_rate,
+            questions: survey.questions.map(q => {
+                return {
+                    id: q.id,
+                    answers: q.options.filter(opt => opt.checked).map(opt => {
+                        return {
+                            id: opt.id,
+                            free_text: opt.free_text
+                        }
+                    })
+                }
+            })
+        }
+        fetch(
+            '/api/survey',
+            {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(result)
+            },
+        ).then(res => res.json())
+        .then(data => {
+            switch (data.status) {
+                case "ERROR":
+                    setError(data.message);
+                    break;
+                case "OK":
+                    setSuccess("Thank you. The survey was successfully saved");
+                    break;
+                default:
+                    throw "Can not process status " + data.status;
+            }
+        });
+    }
+
     React.useEffect(() => {
-        if (raid_id != null) {
-            let url = '/api/survey?ride_id=' + raid_id;
+        if (ride_id != null) {
+            let url = '/api/survey?ride_id=' + ride_id;
             if (survey_id) {
                 url += "&survey_id=" + survey_id;
             }
@@ -62,7 +101,6 @@ function App() {
                         setError(data.message);
                         break;
                     case "OK":
-                        console.log(data.survey);
                         setSurvey(data.survey);
                         break;
                     default:
@@ -71,22 +109,30 @@ function App() {
                 }
             });
         } else {
-            setError("raid_id is not provided. example: /?raid_id=2")
+            setError("ride_id is not provided. example: /?ride_id=2")
         }
     }, [])
 
+    if (errorMessage != null) {
+        return (
+            <div className="error">{ errorMessage } </div>
+        )
+    }
+    if (successMessage != null) {
+        return (
+            <div>{ successMessage } </div>
+        )
+    }
     if (survey == null) {
         return (
-            <div>
             <div>Loading data</div>
-            { errorMessage &&
-                <div className="error">{ errorMessage } </div>
-            }
-            </div>
         )
     } else {
         return (
-            <Survey survey={survey} result = {result} setSurvey={ setSurvey }/>
+            <div>
+                <Survey survey={survey} setSurvey={ setSurvey } />
+                <button onClick={ saveSurvey }>Save</button>
+            </div>
         )
     }
 }
@@ -105,24 +151,6 @@ function Survey(props) {
             user_rate: new_rate
         });
     }
-    const saveResult = function () {
-        const result =  {
-            id: survey.id,
-            user_rate: survey.user_rate,
-            questions: survey.questions.map(q => {
-                return {
-                    id: q.id,
-                    answers: q.options.filter(opt => opt.checked).map(opt => {
-                        return {
-                            id: opt.id,
-                            free_text: opt.free_text
-                        }
-                    })
-                }
-            })
-        }
-        console.log(result);
-    }
     return (
         <div>
         { survey.questions.length > 0 &&
@@ -133,7 +161,6 @@ function Survey(props) {
         }
 
         <UserRate userRate={ survey.user_rate} updateUserRate={ updateUserRate }/>
-        <button onClick={ saveResult }>Save</button>
         </div>
     )
 }

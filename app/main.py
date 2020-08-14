@@ -51,7 +51,7 @@ def survey():
 
         ride_survey_id = db.fetchval("SELECT id FROM RideSurveys WHERE survey_id=%s and ride_id = %s", [survey["id"], ride["id"]])
         if ride_survey_id:
-            return make_error(f"raid with ride_id={ ride_id } is not found")
+            return make_error(f"The survey: {survey['id']} for ride: {ride['id']} has been taken already.")
 
         user = db.fetchall("SELECT id, extensive_survey FROM Users WHERE id=%s", [ride["user_id"]])[0]
         if user["extensive_survey"]:
@@ -73,6 +73,17 @@ def survey():
         "status": "OK",
         "survey": survey
     })
+
+@app.route('/api/survey', methods=["POST"])
+def save_survey():
+    data = flask.request.get_json()
+    db.execute("UPDATE Rides SET user_rate = %s WHERE id=%s", [data["user_rate"], data["ride_id"]])
+    ride_survey_id = db.insert("INSERT INTO RideSurveys (survey_id, ride_id) VALUES (%s, %s) RETURNING id;", [data["id"], data["ride_id"]])
+    for question in data["questions"]:
+        ride_question_id = db.insert("INSERT INTO RideQuestions (ride_survey_id, question_id) VALUES (%s, %s) RETURNING id;", [ride_survey_id, question["id"]])
+        for answer in question["answers"]:
+            db.execute("INSERT INTO RideAnswers (ride_question_id, option_id, free_text) VALUES (%s, %s, %s)", [ride_question_id, answer["id"], answer.get("free_text")])
+    return {"status": "OK"}
 
 
 @app.cli.command("init-db")
