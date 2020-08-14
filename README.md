@@ -102,6 +102,8 @@ Save survey answers.
  
  The live site is deployed to: https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/
  
+ Attention: **SSL certificate is not valid and used only for develop purpose**
+ 
  ### Links to test
  
  * https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/?ride_id=1 - show user_rate only (because user.extensive_survey=false) survey 1 (as defined in AppConfig) for ride 1 (user 1)
