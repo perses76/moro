@@ -59,3 +59,7 @@ div.user-rate ul{
 div.user-rate ul li{
     display: inline-block;
 }
+
+div.error {
+    color: red;
+}

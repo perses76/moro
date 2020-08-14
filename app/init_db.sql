@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS AppConfig;
 DROP TABLE IF EXISTS RideAnswers;
 DROP TABLE IF EXISTS RideQuestions;
 DROP TABLE IF EXISTS RideSurveys;
@@ -84,3 +85,7 @@ CREATE TABLE RideAnswers (
     UNIQUE (ride_question_id, option_id)
 );
 
+CREATE TABLE AppConfig (
+    key varchar(100) NOT NULL PRIMARY KEY,
+    value TEXT NULL
+)

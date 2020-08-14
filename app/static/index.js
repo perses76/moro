@@ -42,26 +42,42 @@ ReactDOM.render(React.createElement(App), elApp);
 function App() {
     const [survey, setSurvey] = React.useState(null);
     const [result, setResult] = React.useState(null);
-    let timer1;
+    const [errorMessage, setError] = React.useState(null);
 
+    var searchParams = new URLSearchParams(location.search);
+    const raid_id = searchParams.get("raid_id")
 
-    // fetch('/survey')
-    // .then(res => {
-    //     console.log(res);
-    // });
-    
     React.useEffect(() => {
-        console.log("use effect");
-        timer1 = setTimeout(function () {
-            console.log("after 1 sec");
-            clearTimeout(timer1);
-            setSurvey(mockSurvey);
-        }, 1000);
+        if (raid_id != null) {
+            fetch('/api/survey?ride_id=' + raid_id)
+            .then(res => res.json())
+            .then(data => {
+                switch (data.status) {
+                    case "ERROR":
+                        setError(data.message);
+                        break;
+                    case "OK":
+                        console.log(data.survey);
+                        setSurvey(data.survey);
+                        break;
+                    default:
+                        console.log(data);
+                        throw "Can not process status " + data.status;
+                }
+            });
+        } else {
+            setError("raid_id is not provided. example: /?raid_id=2")
+        }
     }, [])
 
     if (survey == null) {
         return (
+            <div>
             <div>Loading data</div>
+            { errorMessage &&
+                <div className="error">{ errorMessage } </div>
+            }
+            </div>
         )
     } else {
         return (
@@ -85,7 +101,6 @@ function Survey(props) {
         });
     }
     const saveResult = function () {
-        alert("Save");
         const result =  {
             id: survey.id,
             user_rate: survey.user_rate,
@@ -105,7 +120,9 @@ function Survey(props) {
     }
     return (
         <div>
-        <h2>{ survey.title }</h2>
+        { survey.questions.length > 0 &&
+            <h2>{ survey.title }</h2>
+        }
         {
             survey.questions.map((q) => <Question key={ q.id } question={q} updateQuestion= { updateQuestion } />)
         }

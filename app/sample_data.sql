@@ -23,7 +23,9 @@ INSERT INTO QuestionTypes(code) VALUES
 INSERT INTO Questions(id, title, question_type, survey_id) VALUES
 (1, 'Road Behavior', 'single', 1),
 (2, 'Car Interior', 'multi', 1),
-(3, 'Other', 'freetext', 1);
+(3, 'Other', 'freetext', 1),
+
+(4, 'Cleanliness', 'single', 2);
 
 INSERT INTO AnswerOptions(id, title, question_id, with_text) VALUES
 (1, 'Aggresive', 1, false),
@@ -34,4 +36,10 @@ INSERT INTO AnswerOptions(id, title, question_id, with_text) VALUES
 (5, 'Adequate legroom', 2, false),
 (6, 'Clean', 2, false),
 
-(7, 'Anything else you would like to share about your ride?', 3, false);
+(7, 'Anything else you would like to share about your ride?', 3, false),
+
+(8, 'Clean', 4, true),
+(9, 'Not Clean', 4, true)
+;
+
+INSERT INTO AppConfig(key, value) VALUES ('current_survey_id', 1);
