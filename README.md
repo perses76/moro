@@ -81,6 +81,23 @@ Save survey answers.
  
  Sample data is defined in [sample_data.sql](app/sample_data.sql)
  
+ ### Users
+ 
+ * user 1 - ask only user_rate
+ * user 2 - ask extensive survey
+ 
+ ### Surveys
+ 
+ We have 2 surveys with ids: 1 and 2.
+ 
+ ### Rides
+ 
+ WE have 2 rides: id=1 for user id=1 and id=2 for user id=2
+ 
+ ### AppConfig
+ 
+ Contains: key='current_survey_id' value=1 - means: use survey_id 1 as default survey.
+ 
  ## Environment variables
  
  ### DB_URL
@@ -96,7 +113,7 @@ Save survey answers.
  Example: postgres://localhost/moro_test
  
 
-## Run
+## Commands
 
 ```
 FLASK_APP=app.main:app FLASK_ENV=development flask run -p 8080 > /tmp/moro-app.log 2>&1
