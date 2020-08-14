@@ -1,10 +1,11 @@
 import os
+
 import psycopg2
 import pytest
-from app.main import app
-from app import cli
-from app import settings
+
 import app.db as app_db
+from app import cli, settings
+from app.main import app
 
 
 @pytest.fixture
@@ -22,5 +23,8 @@ def db(monkeypatch):
     cli.create_tables()
     with app_db.connect() as conn:
         with conn.cursor() as cur:
-            cur.executemany("INSERT INTO QuestionTypes(code) VALUES (%s);", [["multi"], ["single"], ["freetext"]])
+            cur.executemany(
+                "INSERT INTO QuestionTypes(code) VALUES (%s);",
+                [["multi"], ["single"], ["freetext"]],
+            )
             conn.commit()

@@ -1,6 +1,8 @@
+from contextlib import contextmanager
+
 import psycopg2
 import psycopg2.extras
-from contextlib import contextmanager
+
 from . import settings
 
 
@@ -11,6 +13,7 @@ def connect():
         yield conn
     finally:
         conn.close()
+
 
 def execute(sql, params=None):
     with connect() as conn:
@@ -32,6 +35,7 @@ def fetchall(sql, params=None, conn=None):
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(sql, params)
             return list(cur.fetchall())
+
     if conn is None:
         with connect() as conn:
             return _run(conn)
@@ -47,6 +51,7 @@ def fetchval(sql, params=None, conn=None):
             if not rows:
                 return None
             return rows[0][0]
+
     if conn is None:
         with connect() as conn:
             return _run(conn)

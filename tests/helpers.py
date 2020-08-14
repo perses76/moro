@@ -1,5 +1,6 @@
-from app import db
 import factory
+
+from app import db
 
 
 class Survey(factory.Factory):
@@ -28,9 +29,15 @@ class Question(factory.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         sql = "INSERT INTO Questions (id, title, survey_id, question_type) VALUES (%s, %s, %s, %s);"
-        db.execute(sql, [
-            kwargs["id"], kwargs["title"], kwargs["survey"]["id"], kwargs["question_type"]
-        ])
+        db.execute(
+            sql,
+            [
+                kwargs["id"],
+                kwargs["title"],
+                kwargs["survey"]["id"],
+                kwargs["question_type"],
+            ],
+        )
         return kwargs
 
 
@@ -46,9 +53,15 @@ class AnswerOption(factory.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         sql = "INSERT INTO AnswerOptions (id, title, question_id, with_text) VALUES (%s, %s, %s, %s);"
-        db.execute(sql, [
-            kwargs["id"], kwargs["title"], kwargs["question"]["id"], kwargs["with_text"]
-        ])
+        db.execute(
+            sql,
+            [
+                kwargs["id"],
+                kwargs["title"],
+                kwargs["question"]["id"],
+                kwargs["with_text"],
+            ],
+        )
         return kwargs
 
 
@@ -91,8 +104,15 @@ class Ride(factory.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         sql = "INSERT INTO Rides (id, user_id, driver_id, user_rate) VALUES (%s, %s, %s, %s);"
-        db.execute(sql,
-            [kwargs["id"], kwargs["user"]["id"], kwargs["driver"]["id"], kwargs["user_rate"]])
+        db.execute(
+            sql,
+            [
+                kwargs["id"],
+                kwargs["user"]["id"],
+                kwargs["driver"]["id"],
+                kwargs["user_rate"],
+            ],
+        )
         return kwargs
 
 
@@ -106,9 +126,7 @@ class AppConfig(factory.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         sql = "INSERT INTO AppConfig (key, value) VALUES (%s, %s);"
-        db.execute(sql,
-            [kwargs["key"], kwargs["value"]]
-        )
+        db.execute(sql, [kwargs["key"], kwargs["value"]])
         return kwargs
 
 
@@ -122,7 +140,5 @@ class RideSurvey(factory.Factory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         sql = "INSERT INTO RideSurveys (survey_id, ride_id) VALUES (%s, %s);"
-        db.execute(sql,
-            [kwargs["survey"]["id"], kwargs["ride"]["id"]]
-        )
+        db.execute(sql, [kwargs["survey"]["id"], kwargs["ride"]["id"]])
         return kwargs
