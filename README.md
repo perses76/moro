@@ -2,7 +2,14 @@
 
 ## Requirements
 
-Python3.8
+* Python >3.8
+* Postgres >9
+
+## Data model
+
+![Image of Yaktocat](docs/MoroChallange.jpg)
+
+### Entities
 
 
 ## Run
