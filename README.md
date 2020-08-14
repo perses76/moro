@@ -127,6 +127,20 @@ Save survey answers.
 
 ## Commands
 
+### Run dev instance
+
 ```
 FLASK_APP=app.main:app FLASK_ENV=development flask run -p 8080 > /tmp/moro-app.log 2>&1
+```
+
+### Test
+
+```
+pytest test
+```
+
+### Apply black formatting
+
+```
+black .
 ```
