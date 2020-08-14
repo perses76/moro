@@ -49,6 +49,10 @@ def survey():
             return make_error(f"Can not find survey with id: {current_survey_id}")
         survey = surveys[0]
 
+        ride_survey_id = db.fetchval("SELECT id FROM RideSurveys WHERE survey_id=%s and ride_id = %s", [survey["id"], ride["id"]])
+        if ride_survey_id:
+            return make_error(f"raid with ride_id={ ride_id } is not found")
+
         user = db.fetchall("SELECT id, extensive_survey FROM Users WHERE id=%s", [ride["user_id"]])[0]
         if user["extensive_survey"]:
             questions = db.fetchall("SELECT id, title, question_type as type FROM Questions WHERE survey_id = %s", [survey["id"]])

@@ -110,3 +110,19 @@ class AppConfig(factory.Factory):
             [kwargs["key"], kwargs["value"]]
         )
         return kwargs
+
+
+class RideSurvey(factory.Factory):
+    class Meta:
+        model = dict
+
+    survey = factory.SubFactory(Survey)
+    ride = factory.SubFactory(Ride)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        sql = "INSERT INTO RideSurveys (survey_id, ride_id) VALUES (%s, %s);"
+        db.execute(sql,
+            [kwargs["survey"]["id"], kwargs["ride"]["id"]]
+        )
+        return kwargs

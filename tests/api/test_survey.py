@@ -86,3 +86,12 @@ def test_error_survey_defined_in_config(client):
     assert response.status_code == 200
     data = response.get_json()
     assert data["status"] == "OK"
+
+def test_survey_for_ride_already_taken(client):
+    survey = hlp.Survey()
+    ride = hlp.Ride()
+    hlp.RideSurvey(survey=survey, ride=ride)
+    response = client.get("api/survey", query_string={"ride_id": ride["id"], "survey_id": survey["id"]})
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["status"] == "ERROR"
