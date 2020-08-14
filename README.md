@@ -80,7 +80,21 @@ Save survey answers.
  ## Sample Data
  
  Sample data is defined in [sample_data.sql](app/sample_data.sql)
-
+ 
+ ## Environment variables
+ 
+ ### DB_URL
+ 
+ Connection string to DB.
+ 
+ Example: postgres://localhost/moro
+ 
+ ### TEST_DB_URL
+ 
+ Connection string to test DB.
+ 
+ Example: postgres://localhost/moro_test
+ 
 
 ## Run
 
