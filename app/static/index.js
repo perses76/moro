@@ -46,10 +46,15 @@ function App() {
 
     var searchParams = new URLSearchParams(location.search);
     const raid_id = searchParams.get("raid_id")
+    const survey_id = searchParams.get("survey_id")
 
     React.useEffect(() => {
         if (raid_id != null) {
-            fetch('/api/survey?ride_id=' + raid_id)
+            let url = '/api/survey?ride_id=' + raid_id;
+            if (survey_id) {
+                url += "&survey_id=" + survey_id;
+            }
+            fetch(url)
             .then(res => res.json())
             .then(data => {
                 switch (data.status) {
