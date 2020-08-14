@@ -98,6 +98,16 @@ Save survey answers.
  
  Contains: key='current_survey_id' value=1 - means: use survey_id 1 as default survey.
  
+ ## Live site
+ 
+ The live site is deployed to: https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/
+ 
+ ### Links to test
+ 
+ * https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/?ride_id=1 - show user_rate only (because user.extensive_survey=false) survey 1 (as defined in AppConfig) for ride 1 (user 1)
+* https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/?ride_id=2 - show full (because user.extensive_survey=true) survey 1 (as defined in AppConfig) for ride 2 (user 2)
+* https://ec2-18-185-39-90.eu-central-1.compute.amazonaws.com/?ride_id=2&survey_id=2 - show full (because user.extensive_survey=true) survey 2 for ride 2 (user 2)
+
  ## Environment variables
  
  ### DB_URL
