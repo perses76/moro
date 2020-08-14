@@ -87,6 +87,13 @@ function App() {
         });
     }
 
+    const resetDb = function () {
+        fetch('/api/reset-db')
+        .then(res => {
+            alert("DB was reseted");
+        });
+    }
+
     React.useEffect(() => {
         if (ride_id != null) {
             let url = '/api/survey?ride_id=' + ride_id;
@@ -115,23 +122,33 @@ function App() {
 
     if (errorMessage != null) {
         return (
-            <div className="error">{ errorMessage } </div>
+            <div>
+                <div className="error">{ errorMessage } </div>
+                <button onClick={ resetDb } >Reset DB</button>
+            </div>
         )
     }
     if (successMessage != null) {
         return (
-            <div>{ successMessage } </div>
+            <div>
+                <div>{ successMessage } </div>
+                <button onClick={ resetDb } >Reset DB</button>
+            </div>
         )
     }
     if (survey == null) {
         return (
-            <div>Loading data</div>
+            <div>
+                <div>Loading data</div>
+                <button onClick={ resetDb } >Reset DB</button>
+            </div>
         )
     } else {
         return (
             <div>
                 <Survey survey={survey} setSurvey={ setSurvey } />
                 <button onClick={ saveSurvey }>Save</button>
+                <button onClick={ resetDb } >Reset DB</button>
             </div>
         )
     }

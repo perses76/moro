@@ -124,6 +124,13 @@ def save_survey():
     return {"status": "OK"}
 
 
+@app.route("/api/reset-db")
+def reset_db():
+    """Recreate all tables and load sample data."""
+    cli.init_db()
+    return {"status": "OK"}
+
+
 @app.cli.command("init-db")
 def init_db():
     """Create Schema and load test data."""
