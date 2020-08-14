@@ -58,6 +58,10 @@ Save survey answers.
   ],
 }
  ```
+ 
+ ## Sample Data
+ 
+ Sample data is defined in [sample_data.sql](app/sample_data.sql)
 
 
 ## Run
