@@ -28,6 +28,20 @@
 
 ## Endpoints
 
+### / GET
+
+Return webpage with rendered survey.
+
+#### Query string arguments
+
+* ride_id - the id of the ride, where we want to take survey about. Mandatory.
+* survey_id - id of specific survey. If survey_id is not provided, we use **current_survey_id** value from **AppConfig** table.
+
+#### Examples
+
+* /?ride_id=1 - Show default (defined in AppConfig) survey regarding ride 1.
+* /?ride_id=1&survey_id=1 - Show survey 1 for ride 1.
+
 ### /api/survey GET
 
 Returns survey data in json format.
@@ -58,6 +72,10 @@ Save survey answers.
   ],
 }
  ```
+ 
+ ### /api/reset-db GET
+ 
+ Reset DB and load sample data.
  
  ## Sample Data
  
