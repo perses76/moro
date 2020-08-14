@@ -1,6 +1,7 @@
+"""Conftest file for pytest."""
+
 import os
 
-import psycopg2
 import pytest
 
 import app.db as app_db
@@ -10,12 +11,14 @@ from app.main import app
 
 @pytest.fixture
 def client():
-    with app.test_client() as client:
-        yield client
+    """Test client."""
+    with app.test_client() as clt:
+        yield clt
 
 
 @pytest.fixture
 def db(monkeypatch):
+    """Intiialize DB."""
     db_url = os.getenv("TEST_DB_URL")
     if db_url is None:
         raise Exception("Please define environment variable TEST_DB_URL for test db")

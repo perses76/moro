@@ -1,3 +1,5 @@
+"""Utilities and Factories for Tests."""
+
 import factory
 
 from app import db

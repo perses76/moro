@@ -1,3 +1,5 @@
+"""Tests for /survey GET endpoints."""
+
 import pytest
 from tests import helpers as hlp
 
@@ -46,7 +48,7 @@ def test_success_not_extensive_survey(client):
     question = hlp.Question(
         id=1, title="Question1", question_type="single", survey=survey
     )
-    option = hlp.AnswerOption(id=1, title="Option1", question=question, with_text=True)
+    hlp.AnswerOption(id=1, title="Option1", question=question, with_text=True)
     user = hlp.User(extensive_survey=False)
     ride = hlp.Ride(user=user)
     response = client.get(
@@ -106,6 +108,7 @@ def test_error_survey_defined_in_config(client):
 
 
 def test_survey_for_ride_already_taken(client):
+    """Return error of survey for the ride already taken."""
     survey = hlp.Survey()
     ride = hlp.Ride()
     hlp.RideSurvey(survey=survey, ride=ride)

@@ -1,3 +1,5 @@
+"""Main web app module."""
+
 from itertools import groupby
 
 import flask
@@ -9,10 +11,12 @@ app = flask.Flask(__name__)
 
 @app.route("/")
 def index():
+    """Index page."""
     return flask.render_template("index.html")
 
 
 def _format_options(options):
+    """Format answer option to return in survey response."""
     return [
         {"id": op["id"], "title": op["title"], "with_text": op["with_text"],}
         for op in options
@@ -20,11 +24,13 @@ def _format_options(options):
 
 
 def make_error(message):
+    """Generate error HTTP response."""
     return {"status": "ERROR", "message": message}, 400
 
 
 @app.route("/api/survey")
-def survey():
+def survey_handler():
+    """Survey handler."""
     ride_id = flask.request.args["ride_id"]
     survey_id = flask.request.args.get("survey_id")
     with db.connect() as conn:
@@ -43,7 +49,8 @@ def survey():
 
         if not current_survey_id:
             return make_error(
-                "survey_id was not provided and not defined in AppConfig for key 'current_survey_id'"
+                "survey_id was not provided and "
+                "not defined in AppConfig for key 'current_survey_id'"
             )
 
         surveys = db.fetchall(
@@ -73,7 +80,8 @@ def survey():
                 [survey["id"]],
             )
             options = db.fetchall(
-                "SELECT ao.id, ao.title, ao.question_id, ao.with_text FROM AnswerOptions ao INNER JOIN Questions q ON ao.question_id = q.id WHERE q.survey_id = %s;",
+                "SELECT ao.id, ao.title, ao.question_id, ao.with_text FROM AnswerOptions ao "
+                "INNER JOIN Questions q ON ao.question_id = q.id WHERE q.survey_id = %s;",
                 [survey["id"]],
             )
             options = sorted(options, key=lambda obj: obj["question_id"])
@@ -92,6 +100,7 @@ def survey():
 
 @app.route("/api/survey", methods=["POST"])
 def save_survey():
+    """Save survey in DB."""
     data = flask.request.get_json()
     db.execute(
         "UPDATE Rides SET user_rate = %s WHERE id=%s",
@@ -108,7 +117,8 @@ def save_survey():
         )
         for answer in question["answers"]:
             db.execute(
-                "INSERT INTO RideAnswers (ride_question_id, option_id, free_text) VALUES (%s, %s, %s)",
+                "INSERT INTO RideAnswers (ride_question_id, option_id, free_text) "
+                "VALUES (%s, %s, %s)",
                 [ride_question_id, answer["id"], answer.get("free_text")],
             )
     return {"status": "OK"}
